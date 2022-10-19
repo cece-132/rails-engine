@@ -129,7 +129,7 @@ RSpec.describe "Items API" do
       created_item = Item.last
 
       expect(response).to_not be_successful
-      expect(response.status).to eq 400
+      expect(response.status).to eq 404
     end
 
     it 'ignores attributes that are not allowed' do
@@ -154,6 +154,11 @@ RSpec.describe "Items API" do
       expect(item[:data]).to_not have_key(:status)
       expect(item[:data][:attributes]).to_not have_key(:status)
     end
+  end
+
+  describe 'Item update' do
+    it 'updates a found item'
+    it 'returns a 404 error when item not found'
   end
 
 end

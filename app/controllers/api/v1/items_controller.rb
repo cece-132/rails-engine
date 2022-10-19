@@ -14,7 +14,7 @@ class Api::V1::ItemsController < ApplicationController
     if Item.create(item_params).valid?
       render json: ItemSerializer.format_item(Item.create(item_params)), status: 201
     else
-      render status: :bad_request
+      render status: :not_found
     end
   end
 
