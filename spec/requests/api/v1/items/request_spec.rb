@@ -47,6 +47,7 @@ RSpec.describe "Items API" do
 
       items = JSON.parse(response.body, symbolize_names: true)
 
+      expect(items).to have_key(:data)
       expect(items[:data].count).to eq 0
       expect(items[:data]).to be_a Array
     end
