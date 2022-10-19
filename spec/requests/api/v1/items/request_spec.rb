@@ -157,8 +157,42 @@ RSpec.describe "Items API" do
   end
 
   describe 'Item update' do
-    it 'updates a found item'
-    it 'returns a 404 error when item not found'
+    it 'updates a found item' do
+      id = create(:item).id
+      previous_name = Item.last.name
+
+      item_params = { name: "Name Change" }
+      headers = {"CONTENT_TYPE" => "application/json"}
+
+      patch "/api/v1/items/#{id}", headers: headers, params: JSON.generate({item: item_params})
+      item = Item.find_by(id: id)
+      item_response = JSON.parse(response.body, symbolize_names: true)
+
+      expect(response).to be_successful
+      expect(item.name).to_not eq(previous_name)
+      expect(item.name).to eq("Name Change")
+
+      expect(item_response).to be_a Hash
+      expect(item_response).to have_key(:data)
+      expect(item_response[:data]).to be_a Hash
+
+      expect(item_response[:data]).to have_key(:id)
+      expect(item_response[:data][:id]).to be_a(String)
+
+      expect(item_response[:data]).to have_key(:attributes)
+
+      expect(item_response[:data][:attributes]).to have_key(:name)
+      expect(item_response[:data][:attributes][:name]).to be_a(String)
+
+      expect(item_response[:data][:attributes]).to have_key(:description)
+      expect(item_response[:data][:attributes][:description]).to be_a(String)
+
+      expect(item_response[:data][:attributes]).to have_key(:unit_price)
+      expect(item_response[:data][:attributes][:unit_price]).to be_a(Float)
+
+      expect(item_response[:data][:attributes]).to have_key(:merchant_id)
+      expect(item_response[:data][:attributes][:merchant_id]).to be_a(Integer)      
+    end
   end
 
 end

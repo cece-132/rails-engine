@@ -18,6 +18,10 @@ class Api::V1::ItemsController < ApplicationController
     end
   end
 
+  def update
+    render json: ItemSerializer.format_item(Item.update(params[:id], item_params))
+  end
+
   private
 
   def item_params
