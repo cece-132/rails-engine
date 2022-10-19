@@ -11,7 +11,11 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def create
-    render json: ItemSerializer.format_item(Item.create(item_params)), status: 201
+    if Item.create(item_params).valid?
+      render json: ItemSerializer.format_item(Item.create(item_params)), status: 201
+    else
+      render status: :bad_request
+    end
   end
 
   private

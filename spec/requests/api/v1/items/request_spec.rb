@@ -113,6 +113,24 @@ RSpec.describe "Items API" do
       expect(created_item[:unit_price]).to eq(item_params[:unit_price])
       expect(created_item[:merchant_id]).to eq(item_params[:merchant_id])
     end
+
+    it 'returns an error if an attribute is missing' do
+      merchant = create(:merchant)
+      create_list(:item, 3)
+
+      item_params = ( {
+        name: "Widget",
+        description: "High quality widget",
+        merchant_id: merchant.id
+      })
+      headers = {"CONTENT_TYPE" => "application/json"}
+
+      post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+      created_item = Item.last
+
+      expect(response).to_not be_successful
+      expect(response.status).to eq 400
+    end
   end
 
 end
