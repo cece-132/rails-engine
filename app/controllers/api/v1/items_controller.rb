@@ -14,7 +14,19 @@ class Api::V1::ItemsController < ApplicationController
     if Item.create(item_params).valid?
       render json: ItemSerializer.format_item(Item.create(item_params)), status: 201
     else
-      render status: :bad_request
+      render status: :not_found
+    end
+  end
+
+  def update
+    if params[:item][:merchant_id].present?
+      if Merchant.exists?(params[:item][:merchant_id])
+        render json: ItemSerializer.format_item(Item.update(params[:id], item_params))
+      else
+        render status: :not_found
+      end
+    else
+      render json: ItemSerializer.format_item(Item.update(params[:id], item_params))
     end
   end
 
