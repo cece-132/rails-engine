@@ -90,4 +90,70 @@ RSpec.describe "Items API" do
 
   end
 
+  describe 'item creation' do
+    it 'can create an object' do
+      merchant = create(:merchant)
+      create_list(:item, 3)
+
+      item_params = ( {
+        name: "Widget",
+        description: "High quality widget",
+        unit_price: 100.99,
+        merchant_id: merchant.id
+      })
+      headers = {"CONTENT_TYPE" => "application/json"}
+
+      post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+      created_item = Item.last
+
+      expect(response).to be_successful
+
+      expect(created_item[:name]).to eq(item_params[:name])
+      expect(created_item[:description]).to eq(item_params[:description])
+      expect(created_item[:unit_price]).to eq(item_params[:unit_price])
+      expect(created_item[:merchant_id]).to eq(item_params[:merchant_id])
+    end
+
+    it 'returns an error if an attribute is missing' do
+      merchant = create(:merchant)
+      create_list(:item, 3)
+
+      item_params = ( {
+        name: "Widget",
+        description: "High quality widget",
+        merchant_id: merchant.id
+      })
+      headers = {"CONTENT_TYPE" => "application/json"}
+
+      post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+      created_item = Item.last
+
+      expect(response).to_not be_successful
+      expect(response.status).to eq 400
+    end
+
+    it 'ignores attributes that are not allowed' do
+      merchant = create(:merchant)
+      create_list(:item, 3)
+
+      item_params = ( {
+        name: "Widget",
+        description: "High quality widget",
+        unit_price: 100.99,
+        merchant_id: merchant.id,
+        status: 'pending'
+      })
+      headers = {"CONTENT_TYPE" => "application/json"}
+
+      post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+      item = JSON.parse(response.body, symbolize_names: true)
+
+      expect(response).to be_successful
+      expect(response.status).to eq 201
+      expect(item).to_not have_key(:status)
+      expect(item[:data]).to_not have_key(:status)
+      expect(item[:data][:attributes]).to_not have_key(:status)
+    end
+  end
+
 end
