@@ -52,4 +52,42 @@ RSpec.describe "Items API" do
       expect(items[:data]).to be_a Array
     end
   end
+
+  describe 'send a single item' do
+    it 'sends the item w/ id' do
+      item = create(:item)
+
+      get "/api/v1/items/#{item.id}"
+
+      expect(response).to be_successful
+
+      item = JSON.parse(response.body, symbolize_names: true)
+
+      expect(item).to be_a Hash
+      expect(item).to have_key(:data)
+      expect(item[:data]).to be_a Hash
+
+      expect(item[:data]).to have_key(:id)
+      expect(item[:data][:id]).to be_a(String)
+
+      expect(item[:data]).to have_key(:attributes)
+
+      expect(item[:data][:attributes]).to have_key(:name)
+      expect(item[:data][:attributes][:name]).to be_a(String)
+
+      expect(item[:data][:attributes]).to have_key(:description)
+      expect(item[:data][:attributes][:description]).to be_a(String)
+
+      expect(item[:data][:attributes]).to have_key(:unit_price)
+      expect(item[:data][:attributes][:unit_price]).to be_a(Float)
+
+      expect(item[:data][:attributes]).to have_key(:merchant_id)
+      expect(item[:data][:attributes][:merchant_id]).to be_a(Integer)
+    end
+
+    it 'sad path, bad integer id returns 404'
+    it 'edge case, string id returns 404'
+
+  end
+
 end
