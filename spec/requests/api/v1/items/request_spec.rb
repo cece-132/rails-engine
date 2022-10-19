@@ -131,6 +131,29 @@ RSpec.describe "Items API" do
       expect(response).to_not be_successful
       expect(response.status).to eq 400
     end
+
+    it 'ignores attributes that are not allowed' do
+      merchant = create(:merchant)
+      create_list(:item, 3)
+
+      item_params = ( {
+        name: "Widget",
+        description: "High quality widget",
+        unit_price: 100.99,
+        merchant_id: merchant.id,
+        status: 'pending'
+      })
+      headers = {"CONTENT_TYPE" => "application/json"}
+
+      post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+      item = JSON.parse(response.body, symbolize_names: true)
+
+      expect(response).to be_successful
+      expect(response.status).to eq 201
+      expect(item).to_not have_key(:status)
+      expect(item[:data]).to_not have_key(:status)
+      expect(item[:data][:attributes]).to_not have_key(:status)
+    end
   end
 
 end
