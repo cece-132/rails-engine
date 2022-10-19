@@ -14,6 +14,7 @@ RSpec.describe "Items API" do
       items = JSON.parse(response.body, symbolize_names: true)
 
       expect(items.count).to eq 10
+      expect(items).to be_a Array
 
       items.each do |item|
         expect(item).to have_key(:id)
@@ -29,7 +30,22 @@ RSpec.describe "Items API" do
 
         expect(item[:attributes]).to have_key(:unit_price)
         expect(item[:attributes][:unit_price]).to be_a(Float)
+
+        expect(item[:attributes]).to_not have_key(:merchant_id)
       end
+    end
+
+    it 'returns an array even if empty' do
+      create_list(:merchant, 3)
+
+      get '/api/v1/items'
+
+      expect(response).to be_successful
+
+      items = JSON.parse(response.body, symbolize_names: true)
+
+      expect(items.count).to eq 0
+      expect(items).to be_a Array
     end
   end
 end
