@@ -19,7 +19,15 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def update
-    render json: ItemSerializer.format_item(Item.update(params[:id], item_params))
+    if params[:item][:merchant_id].present?
+      if Merchant.exists?(params[:item][:merchant_id])
+        render json: ItemSerializer.format_item(Item.update(params[:id], item_params))
+      else
+        render status: :not_found
+      end
+    else
+      render json: ItemSerializer.format_item(Item.update(params[:id], item_params))
+    end
   end
 
   private

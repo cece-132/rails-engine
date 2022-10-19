@@ -193,6 +193,22 @@ RSpec.describe "Items API" do
       expect(item_response[:data][:attributes]).to have_key(:merchant_id)
       expect(item_response[:data][:attributes][:merchant_id]).to be_a(Integer)      
     end
+
+    it 'returns 404 if merchant is not found' do
+      old_item = create(:item)
+      previous_merchant_id = Item.last.merchant_id
+
+      item_params = { merchant_id: 2 }
+      headers = {"CONTENT_TYPE" => "application/json"}
+
+      patch "/api/v1/items/#{old_item.id}", headers: headers, params: JSON.generate({item: item_params})
+      item = Item.find_by(id: old_item.id)
+
+      expect(response).to_not be_successful
+      expect(response.status).to eq 404
+      expect(item.merchant_id).to eq(previous_merchant_id)
+      expect(item.merchant_id).to_not eq(0)
+    end
   end
 
 end
