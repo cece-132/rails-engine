@@ -20,7 +20,7 @@ RSpec.describe "Items API" do
 
       items[:data].each do |item|
         expect(item).to have_key(:id)
-        expect(item[:id]).to be_a(Integer)
+        expect(item[:id]).to be_a(String)
 
         expect(item).to have_key(:attributes)
 
@@ -33,7 +33,8 @@ RSpec.describe "Items API" do
         expect(item[:attributes]).to have_key(:unit_price)
         expect(item[:attributes][:unit_price]).to be_a(Float)
 
-        expect(item[:attributes]).to_not have_key(:merchant_id)
+        expect(item[:attributes]).to have_key(:merchant_id)
+        expect(item[:attributes][:merchant_id]).to be_a(Integer)
       end
     end
 
