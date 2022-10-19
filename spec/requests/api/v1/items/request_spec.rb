@@ -13,10 +13,12 @@ RSpec.describe "Items API" do
 
       items = JSON.parse(response.body, symbolize_names: true)
 
-      expect(items.count).to eq 10
-      expect(items).to be_a Array
+      expect(items[:data].count).to eq 10
+      expect(items).to be_a Hash
+      expect(items).to have_key(:data)
+      expect(items[:data]).to be_a Array
 
-      items.each do |item|
+      items[:data].each do |item|
         expect(item).to have_key(:id)
         expect(item[:id]).to be_a(Integer)
 
@@ -44,8 +46,8 @@ RSpec.describe "Items API" do
 
       items = JSON.parse(response.body, symbolize_names: true)
 
-      expect(items.count).to eq 0
-      expect(items).to be_a Array
+      expect(items[:data].count).to eq 0
+      expect(items[:data]).to be_a Array
     end
   end
 end
