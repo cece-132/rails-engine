@@ -109,6 +109,35 @@ RSpec.describe "Items API" do
         expect(item[:attributes][:merchant_id]).to be_a(Integer)
       end
     end
+
+    it 'returns an array for 0 items returned' do
+      merchant = create(:merchant)
+
+      get "/api/v1/merchants/#{merchant.id}/items"
+
+      expect(response).to be_successful
+
+      items = JSON.parse(response.body, symbolize_names: true)
+
+      expect(items).to be_a Hash
+      expect(items[:data]).to be_a Array
+      expect(items[:data]).to be_empty
+    end
+
+    it 'returns an array for 1 item returned' do
+      merchant = create(:merchant)
+      item_1 = merchant.items.create(attributes_for(:item, merchant: merchant))
+
+      get "/api/v1/merchants/#{merchant.id}/items"
+
+      expect(response).to be_successful
+
+      items = JSON.parse(response.body, symbolize_names: true)
+
+      expect(items).to be_a Hash
+      expect(items[:data]).to be_a Array
+      expect(items[:data].count).to eq 1
+    end
   end
   
 end
