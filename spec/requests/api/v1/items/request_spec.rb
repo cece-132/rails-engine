@@ -211,4 +211,49 @@ RSpec.describe "Items API" do
     end
   end
 
+  describe 'item destroy' do
+    it 'can destroy an item record' do
+      merchant = create(:merchant)
+      items = create_list(:item, 2)
+
+      expect(Item.count).to eq 2
+
+      delete "/api/v1/items/#{items[0].id}"
+  
+      expect(response).to be_successful
+      expect(response.status).to eq 204
+      expect(Item.count).to eq(1)
+      expect{Item.find(items[0].id)}.to raise_error(ActiveRecord::RecordNotFound)
+    end
+
+    it 'can destroy an invoice where destroyed invoice was the only item' do
+      merchant = create(:merchant)
+      item_1 = merchant.items.create(attributes_for(:item, merchant: merchant))
+      item_2 = merchant.items.create(attributes_for(:item, merchant: merchant))
+
+      customer = create(:customer)
+      invoice = customer.invoices.create(attributes_for(:invoice, customer: customer, merchant_id: merchant.id))
+      invoice_2 = customer.invoices.create(attributes_for(:invoice, customer: customer, merchant_id: merchant.id))
+
+      inv_item_1 = create(:invoice_item, invoice_id: invoice.id, item_id: item_1.id)
+      inv_item_2 = create(:invoice_item, invoice_id: invoice_2.id, item_id: item_1.id)
+      inv_item_3 = create(:invoice_item, invoice_id: invoice_2.id, item_id: item_2.id)
+
+      expect(Item.count).to eq 2
+      expect(InvoiceItem.count).to eq 3
+      expect(Invoice.count).to eq 2
+
+      delete "/api/v1/items/#{item_1.id}"
+
+      expect(response).to be_successful
+      expect(response.status).to eq 204
+
+      expect(Item.count).to eq 1
+      expect(InvoiceItem.count).to eq 1
+      expect(Invoice.count).to eq 1
+
+      expect{Item.find(item_1.id)}.to raise_error(ActiveRecord::RecordNotFound)
+    end
+  end
+
 end
