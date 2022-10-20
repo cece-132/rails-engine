@@ -256,4 +256,22 @@ RSpec.describe "Items API" do
     end
   end
 
+  describe 'An Items Merchant' do
+    it 'returns an items merchant info' do
+      merchant = create(:merchant)
+      item_1 = merchant.items.create(attributes_for(:item, merchant: merchant))
+      item_2 = merchant.items.create(attributes_for(:item, merchant: merchant))
+
+      get "/api/v1/item/#{item_1}/merchant"
+
+      expect(response).to be_successful
+
+      merchants = JSON.parse(response.body, symbolize_names: true)
+
+      expect(merchants).to have_key(:data)
+      expect(merchants[:data]).to be_a Array
+      expect(merchants[:data].count).to eq 0
+    end
+  end
+
 end
