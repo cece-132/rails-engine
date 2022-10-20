@@ -226,7 +226,7 @@ RSpec.describe "Items API" do
       expect{Item.find(items[0].id)}.to raise_error(ActiveRecord::RecordNotFound)
     end
 
-    xit 'can destroy an invoice where destroyed invoice was the only item' do
+    it 'can destroy an invoice where destroyed invoice was the only item' do
       merchant = create(:merchant)
       item_1 = merchant.items.create(attributes_for(:item, merchant: merchant))
       item_2 = merchant.items.create(attributes_for(:item, merchant: merchant))
@@ -249,7 +249,7 @@ RSpec.describe "Items API" do
       expect(response.status).to eq 204
 
       expect(Item.count).to eq 1
-      expect(InvoiceItem.count).to eq 2
+      expect(InvoiceItem.count).to eq 1
       expect(Invoice.count).to eq 1
 
       expect{Item.find(item_1.id)}.to raise_error(ActiveRecord::RecordNotFound)

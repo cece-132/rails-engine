@@ -4,7 +4,7 @@ class Item < ApplicationRecord
   has_many :invoice_items, :dependent => :destroy
   has_many :invoices, through: :invoice_items, counter_cache: true
   has_many :items, through: :invoice_items, counter_cache: true
-  # after_destroy :cleanup
+  after_destroy :cleanup
   
 
   validates_presence_of :name
@@ -13,7 +13,13 @@ class Item < ApplicationRecord
   validates_presence_of :merchant_id
 
   private
-  # def cleanup
-  #   Invoice.cleanup
-  # end
+
+  def cleanup
+    Invoice.left_joins(:invoice_items)
+    .select('invoices.*, count(invoice_items) as total_inv')
+    .having('count(invoice_items) = ?', 0)
+    .group(:id)
+    .destroy_all
+  end
+
 end
