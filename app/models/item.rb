@@ -1,4 +1,6 @@
 class Item < ApplicationRecord
+  validates :name, uniqueness: {case_sensitive: false}
+
   enum status: ["Enabled", "Disabled"]
   belongs_to :merchant
   has_many :invoice_items, :dependent => :destroy
@@ -11,6 +13,10 @@ class Item < ApplicationRecord
   validates_presence_of :description
   validates_presence_of :unit_price
   validates_presence_of :merchant_id
+
+  def self.find_one_item(item_name_params)
+   where("lower(name) like lower('%#{item_name_params}%')").order(:name).first
+  end
 
   private
 
