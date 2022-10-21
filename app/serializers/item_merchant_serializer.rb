@@ -1,6 +1,6 @@
 class ItemMerchantSerializer
   
-  def self.format_item_merchant(item, merchant)
+  def self.new_merchant(item, merchant)
     { data:
       { id: "#{item.id}",
         type: item.class.to_s.downcase,

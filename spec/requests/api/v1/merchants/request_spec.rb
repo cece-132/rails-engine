@@ -69,9 +69,6 @@ RSpec.describe "Items API" do
       expect(merchant[:data][:attributes]).to have_key(:name)
       expect(merchant[:data][:attributes][:name]).to be_a(String)
     end
-
-    it 'sad path, bad integer id returns 404'
-    it 'edge case, string id returns 404'
   end
 
   describe 'Merchant Items' do

@@ -2,36 +2,42 @@ class Api::V1::ItemsController < ApplicationController
 
   def index
     items = Item.all
-    render json: ItemSerializer.format_items(items)
+    render json: ItemSerializer.new(items)
   end
 
   def show
-    item = Item.find(params[:id])
-    render json: ItemSerializer.format_item(item)
+    if Item.exists?(params[:id])
+      render json: ItemSerializer.new(Item.find(params[:id]))
+    else
+      render json: { data: {}, error: 'error' }, status: 404
+    end
   end
 
   def create
-    if Item.create(item_params).valid?
-      render json: ItemSerializer.format_item(Item.create(item_params)), status: 201
-    else
-      render status: :not_found
+    item = Item.new(item_params)
+    if item.save
+      render json: ItemSerializer.new(item)
     end
   end
 
   def update
     if params[:item][:merchant_id].present?
       if Merchant.exists?(params[:item][:merchant_id])
-        render json: ItemSerializer.format_item(Item.update(params[:id], item_params))
+        render json: ItemSerializer.new(Item.update(params[:id], item_params))
       else
-        render status: :not_found
+        render json: { data: {}, error: 'error' }, status: 404
       end
     else
-      render json: ItemSerializer.format_item(Item.update(params[:id], item_params))
+      render json: ItemSerializer.new(Item.update(params[:id], item_params))
     end
   end
 
   def destroy
-    Item.destroy(params[:id])
+    if Item.exists?(params[:id])
+      Item.destroy(params[:id])
+    else
+      render status: 404
+    end
   end
 
   private

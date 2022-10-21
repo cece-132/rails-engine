@@ -85,15 +85,11 @@ RSpec.describe "Items API" do
       expect(item[:data][:attributes][:merchant_id]).to be_a(Integer)
     end
 
-    it 'sad path, bad integer id returns 404'
-    it 'edge case, string id returns 404'
-
   end
 
   describe 'item creation' do
     it 'can create an object' do
       merchant = create(:merchant)
-      create_list(:item, 3)
 
       item_params = ( {
         name: "Widget",
@@ -213,17 +209,42 @@ RSpec.describe "Items API" do
 
   describe 'item destroy' do
     it 'can destroy an item record' do
-      merchant = create(:merchant)
-      items = create_list(:item, 2)
+      # it "can create a new item then delete it" do
+        item_params = ({
+                        name: Faker::Commerce.product_name,
+                        description: Faker::Lorem.paragraph,
+                        unit_price: Faker::Number.decimal(l_digits: 2),
+                        merchant_id: create(:merchant).id
+                      })
+        headers = {"CONTENT_TYPE" => "application/json"}
+        
+        post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+        created_item = Item.last
 
-      expect(Item.count).to eq 2
+        expect(response).to have_http_status(201)
+        expect(Item.count).to eq(1)
+        expect(created_item.name).to eq(item_params[:name])
+        expect(created_item.description).to eq(item_params[:description])
+        expect(created_item.unit_price).to eq(item_params[:unit_price])
+        expect(created_item.merchant_id).to eq(item_params[:merchant_id])
+        
+        delete "/api/v1/items/#{created_item.id}"
+        
+        expect(response).to have_http_status(204)
+        expect(Item.count).to eq(0)
+        expect{Item.find(created_item.id)}.to raise_error(ActiveRecord::RecordNotFound)
+      # end
+      # merchant = create(:merchant)
+      # items = create_list(:item, 2)
 
-      delete "/api/v1/items/#{items[0].id}"
+      # expect(Item.count).to eq 2
+
+      # delete "/api/v1/items/#{items[0].id}"
   
-      expect(response).to be_successful
-      expect(response.status).to eq 204
-      expect(Item.count).to eq(1)
-      expect{Item.find(items[0].id)}.to raise_error(ActiveRecord::RecordNotFound)
+      # expect(response).to be_successful
+      # expect(response.status).to eq 204
+      # expect(Item.count).to eq(1)
+      # expect{Item.find(items[0].id)}.to raise_error(ActiveRecord::RecordNotFound)
     end
 
     it 'can destroy an invoice where destroyed invoice was the only item' do
