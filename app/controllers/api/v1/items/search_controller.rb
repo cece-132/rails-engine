@@ -7,7 +7,7 @@ class Api::V1::Items::SearchController < ApplicationController
     elsif min_and_max_price(params)
       @item = items.filter_min_price(params[:min_price]).filter_max_price(params[:max_price])
       if @item.present?
-        render json: ItemSerializer.format_items(@item)
+        render json: ItemSerializer.new(@item)
       else
         render json: { data: {}, error: 'error' }, status: 400
       end
@@ -16,7 +16,7 @@ class Api::V1::Items::SearchController < ApplicationController
         @item = items.public_send("filter_#{k}", v) if !v.empty? && !v.to_f.negative? 
       end
       if @item.present?
-        render json: ItemSerializer.format_items(@item)
+        render json: ItemSerializer.new(@item)
       else
         render json: { data: {}, error: 'error' }, status: 400
       end
@@ -41,18 +41,18 @@ end
 
 #     if params[:name].present?
 #       search_item = Item.find_one_item(params[:name])
-#       render json: ItemSerializer.format_item(search_item)
+#       render json: ItemSerializer.new(search_item)
 
 #     elsif params[:min_price].present? && params[:max_price].present?
 #       items = Item.price_between(params[:max_price].to_f.abs, params[:min_price].to_f.abs)
-#       render json: ItemSerializer.format_items(items)
+#       render json: ItemSerializer.new(items)
 
 #     elsif params[:min_price].present?
 #       items = Item.greater_than_min_price(params[:min_price].to_f.abs)
-#       render json: ItemSerializer.format_items(items)
+#       render json: ItemSerializer.new(items)
 
 #     elsif params[:max_price].present?
 #       items = Item.less_than_max_price(params[:max_price].to_f.abs)
-#       render json: ItemSerializer.format_items(items)
+#       render json: ItemSerializer.new(items)
 # binding.pry
 #     end

@@ -125,7 +125,7 @@ RSpec.describe "Items API" do
       created_item = Item.last
 
       expect(response).to_not be_successful
-      expect(response.status).to eq 400
+      expect(response.status).to eq 404
     end
 
     it 'ignores attributes that are not allowed' do
@@ -201,7 +201,7 @@ RSpec.describe "Items API" do
       item = Item.find_by(id: old_item.id)
 
       expect(response).to_not be_successful
-      expect(response.status).to eq 400
+      expect(response.status).to eq 404
       expect(item.merchant_id).to eq(previous_merchant_id)
       expect(item.merchant_id).to_not eq(0)
     end
@@ -217,15 +217,19 @@ RSpec.describe "Items API" do
                         merchant_id: create(:merchant).id
                       })
         headers = {"CONTENT_TYPE" => "application/json"}
+        
         post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
         created_item = Item.last
+
         expect(response).to have_http_status(201)
         expect(Item.count).to eq(1)
         expect(created_item.name).to eq(item_params[:name])
         expect(created_item.description).to eq(item_params[:description])
         expect(created_item.unit_price).to eq(item_params[:unit_price])
         expect(created_item.merchant_id).to eq(item_params[:merchant_id])
+        
         delete "/api/v1/items/#{created_item.id}"
+        
         expect(response).to have_http_status(204)
         expect(Item.count).to eq(0)
         expect{Item.find(created_item.id)}.to raise_error(ActiveRecord::RecordNotFound)

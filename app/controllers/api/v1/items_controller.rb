@@ -2,12 +2,12 @@ class Api::V1::ItemsController < ApplicationController
 
   def index
     items = Item.all
-    render json: ItemSerializer.format_items(items)
+    render json: ItemSerializer.new(items)
   end
 
   def show
     if Item.exists?(params[:id])
-      render json: ItemSerializer.format_item(Item.find(params[:id]))
+      render json: ItemSerializer.new(Item.find(params[:id]))
     else
       render json: { data: {}, error: 'error' }, status: 404
     end
@@ -16,21 +16,21 @@ class Api::V1::ItemsController < ApplicationController
   def create
     item = Item.new(item_params)
     if item.save
-      render json: ItemSerializer.format_item(item), status: 201
+      render json: ItemSerializer.new(item), status: 201
     else
-      render json: { data: {}, error: 'error' }, status: 400
+      render json: { data: {}, error: 'error' }, status: 404
     end
   end
 
   def update
     if params[:item][:merchant_id].present?
       if Merchant.exists?(params[:item][:merchant_id])
-        render json: ItemSerializer.format_item(Item.update(params[:id], item_params))
+        render json: ItemSerializer.new(Item.update(params[:id], item_params))
       else
-        render json: { data: {}, error: 'error' }, status: 400
+        render json: { data: {}, error: 'error' }, status: 404
       end
     else
-      render json: ItemSerializer.format_item(Item.update(params[:id], item_params))
+      render json: ItemSerializer.new(Item.update(params[:id], item_params))
     end
   end
 

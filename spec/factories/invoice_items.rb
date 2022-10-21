@@ -1,4 +1,3 @@
-require 'faker'
 valid_status = ["Pending", "Packaged", "Shipped"]
 
 FactoryBot.define do
