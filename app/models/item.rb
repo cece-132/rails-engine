@@ -37,7 +37,7 @@ class Item < ApplicationRecord
   private
 
   def cleanup
-    Invoice.left_joins(:invoice_items)
+    x = Invoice.left_joins(:invoice_items)
     .select('invoices.*, count(invoice_items) as total_inv')
     .having('count(invoice_items) = ?', 0)
     .group(:id)
