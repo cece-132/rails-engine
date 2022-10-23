@@ -65,4 +65,34 @@ RSpec.describe "Items API" do
       expect(item[:data][:attributes]).to have_key(:merchant_id)
     end
   end
+
+  describe 'create' do
+    it 'can create an item' do
+
+      item_params = ( {
+        name: "Widget",
+        description: "High quality widget",
+        unit_price: 100.99,
+        merchant_id: create(:merchant).id
+      })
+
+      headers = {"CONTENT_TYPE" => "application/json"}
+
+      post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+
+      expect(response).to be_successful
+
+      item = JSON.parse(response.body, symbolize_names: true)
+
+      expect(item).to be_a Hash
+      expect(item).to have_key(:data)
+      expect(item[:data]).to have_key(:id)
+      expect(item[:data]).to have_key(:type)
+      expect(item[:data]).to have_key(:attributes)
+      expect(item[:data][:attributes]).to have_key(:name)
+      expect(item[:data][:attributes]).to have_key(:description)
+      expect(item[:data][:attributes]).to have_key(:unit_price)
+      expect(item[:data][:attributes]).to have_key(:merchant_id)
+    end
+  end
 end

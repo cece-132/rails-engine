@@ -50,4 +50,5 @@ RSpec.describe "Merchant API" do
       expect(merchant[:data][:attributes]).to have_key(:name)
     end
   end
+
 end
