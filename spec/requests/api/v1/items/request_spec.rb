@@ -95,4 +95,54 @@ RSpec.describe "Items API" do
       expect(item[:data][:attributes]).to have_key(:merchant_id)
     end
   end
+
+  describe 'Update' do
+    it 'can update and item' do
+      merchant = create(:merchant)
+      item = create(:item, merchant_id: merchant.id)
+
+      previous_name = Item.last.name
+      item_params = { name: "New Name" }
+      headers = {"CONTENT_TYPE" => "application/json"}
+
+      put "/api/v1/items/#{item.id}", headers: headers, params: JSON.generate({item: item_params})
+
+      item = JSON.parse(response.body, symbolize_names: true)
+      updated_item = Item.last
+      
+      expect(response).to be_successful
+      expect(updated_item.name).to_not eq previous_name
+      expect(updated_item.name).to eq "New Name"
+    end
+
+    it 'returns 404 when datatype incorrect' do
+      item = create(:item)
+  
+      item_params = { name: "" }
+      headers = {"CONTENT_TYPE" => "application/json"}
+      
+      put "/api/v1/items/#{item.id}", headers: headers, params: JSON.generate({item: item_params})
+
+      expect(response.status).to eq(404)
+      error_response = JSON.parse(response.body, symbolize_names: true)
+
+      expect(error_response[:error]).to eq('Unsuccessful update' )
+      expect(Item.last.name).to_not eq("")
+    end
+
+    it 'returns 404 if item not found' do
+      item = create(:item)
+  
+      item_params = { name: "New Name" }
+      headers = {"CONTENT_TYPE" => "application/json"}
+
+      put "/api/v1/items/690927", headers: headers, params: JSON.generate({item: item_params})
+
+      expect(response.status).to eq(404)
+
+      error_response = JSON.parse(response.body, symbolize_names: true)
+
+      expect(error_response[:error]).to eq('No item found' )
+    end
+  end
 end
