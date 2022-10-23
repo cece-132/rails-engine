@@ -145,4 +145,62 @@ RSpec.describe "Items API" do
       expect(error_response[:error]).to eq('No item found' )
     end
   end
+
+  describe 'Destroy' do
+    it 'can destroy a record' do
+      item_params = ({
+        name: Faker::Commerce.product_name,
+        description: Faker::Lorem.paragraph,
+        unit_price: Faker::Number.decimal(l_digits: 2),
+        merchant_id: create(:merchant).id
+      })
+      headers = {"CONTENT_TYPE" => "application/json"}
+
+      post "/api/v1/items", headers: headers, params: JSON.generate(item: item_params)
+      created_item = Item.last
+
+      expect(response).to have_http_status(201)
+      expect(Item.count).to eq(1)
+      
+      expect(created_item.name).to eq(item_params[:name])
+      expect(created_item.description).to eq(item_params[:description])
+      expect(created_item.unit_price).to eq(item_params[:unit_price])
+      expect(created_item.merchant_id).to eq(item_params[:merchant_id])
+
+      delete "/api/v1/items/#{created_item.id}"
+
+      expect(response).to have_http_status(204)
+      expect(Item.count).to eq(0)
+      expect{Item.find(created_item.id)}.to raise_error(ActiveRecord::RecordNotFound)
+    end
+
+    it 'can destroy an invoice where destroyed invoice was the only item' do
+      merchant = create(:merchant)
+      item_1 = merchant.items.create(attributes_for(:item, merchant: merchant))
+      item_2 = merchant.items.create(attributes_for(:item, merchant: merchant))
+
+      customer = create(:customer)
+      invoice = customer.invoices.create(attributes_for(:invoice, customer: customer, merchant_id: merchant.id))
+      invoice_2 = customer.invoices.create(attributes_for(:invoice, customer: customer, merchant_id: merchant.id))
+
+      inv_item_1 = create(:invoice_item, invoice_id: invoice.id, item_id: item_1.id)
+      inv_item_2 = create(:invoice_item, invoice_id: invoice_2.id, item_id: item_1.id)
+      inv_item_3 = create(:invoice_item, invoice_id: invoice_2.id, item_id: item_2.id)
+
+      expect(Item.count).to eq 2
+      expect(InvoiceItem.count).to eq 3
+      expect(Invoice.count).to eq 2
+
+      delete "/api/v1/items/#{item_1.id}"
+
+      expect(response).to be_successful
+      expect(response.status).to eq 204
+
+      expect(Item.count).to eq 1
+      expect(InvoiceItem.count).to eq 1
+      expect(Invoice.count).to eq 1
+
+      expect{Item.find(item_1.id)}.to raise_error(ActiveRecord::RecordNotFound)
+    end
+  end
 end

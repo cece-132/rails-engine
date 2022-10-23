@@ -32,6 +32,12 @@ class Api::V1::ItemsController < ApplicationController
       render json: { error: 'No item found' }, status: 404
     end
   end
+
+  def destroy
+    if Item.exists?(params[:id])
+      Item.destroy(params[:id])
+    end      
+  end
   
   private
 
