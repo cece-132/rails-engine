@@ -14,6 +14,10 @@ class Item < ApplicationRecord
   validates_presence_of :unit_price
   validates_presence_of :merchant_id
 
+  scope :filter_name, -> (name) { where(['name ILIKE ? OR description = ?', "%#{name}%", "%#{name}%"]) }
+  scope :filter_max_price, -> (max_price) { where('unit_price <= ?', max_price).order(:name) }
+  scope :filter_min_price, -> (min_price) { where('unit_price >= ?', min_price).order(:name) }
+
   private
 
   def cleanup
