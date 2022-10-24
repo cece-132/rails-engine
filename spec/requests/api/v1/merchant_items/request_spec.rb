@@ -31,12 +31,13 @@ RSpec.describe "Merchant and items associations" do
 
       merchant_items = JSON.parse(response.body, symbolize_names: true)
 
-      expect(response.status).to eq 404
+      expect(response).to be_successful
+      expect(response.status).to eq 200
       expect(merchant_items).to be_a Hash
       expect(merchant_items).to have_key(:data)
     end
 
-    xit 'returns 404 if merchant not found' do
+    it 'returns 404 if merchant not found' do
       merchant = create(:merchant)
       create_list(:item, 5, merchant_id: merchant.id)
 
@@ -46,7 +47,7 @@ RSpec.describe "Merchant and items associations" do
 
       error_response = JSON.parse(response.body, symbolize_names: true)
 
-      expect(error_response).to eq "No Merchant found"
+      expect(error_response[:error]).to eq "Merchant Items not found"
     end
     
   end
