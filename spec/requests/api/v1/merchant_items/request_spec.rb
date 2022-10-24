@@ -31,7 +31,7 @@ RSpec.describe "Merchant and items associations" do
 
       merchant_items = JSON.parse(response.body, symbolize_names: true)
 
-      expect(response).to be_successful
+      expect(response.status).to eq 404
       expect(merchant_items).to be_a Hash
       expect(merchant_items).to have_key(:data)
     end

@@ -1,6 +1,6 @@
 class Api::V1::MerchantItemsController < ApplicationController
   def index
-    if Merchant.exists?(params[:id]) && Merchant.find(params[:id]).items.empty?
+    if Merchant.exists?(params[:id])
       items = Merchant.find(params[:id]).items
       render json: ItemSerializer.new(items), status: 200
     else
