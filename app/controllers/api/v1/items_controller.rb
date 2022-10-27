@@ -6,29 +6,29 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def show
-    if Item.exists?(params[:id])
-      render json: ItemSerializer.new(Item.find(params[:id]))
-    else
-      render json: { data: {}, error: 'error' }, status: 404
-    end
+    item = Item.find(params[:id])
+    render json: ItemSerializer.new(item)
   end
 
   def create
     item = Item.new(item_params)
     if item.save
-      render json: ItemSerializer.new(item)
+      render json: ItemSerializer.new(item), status: 201
+    else
+      render status: 404
     end
   end
 
   def update
-    if params[:item][:merchant_id].present?
-      if Merchant.exists?(params[:item][:merchant_id])
-        render json: ItemSerializer.new(Item.update(params[:id], item_params))
+    if Item.exists?(params[:id])
+      item = Item.find(params[:id])
+      if item.update(item_params)
+        render json: ItemSerializer.new(item), status: 202
       else
-        render json: { data: {}, error: 'error' }, status: 404
+        render json: { error: 'Unsuccessful update' }, status: 404
       end
     else
-      render json: ItemSerializer.new(Item.update(params[:id], item_params))
+      render json: { error: 'No item found' }, status: 404
     end
   end
 
@@ -36,14 +36,18 @@ class Api::V1::ItemsController < ApplicationController
     if Item.exists?(params[:id])
       Item.destroy(params[:id])
     else
-      render status: 404
+      render json: { error: 'No item found' }, status: 404
     end
   end
-
+  
   private
 
   def item_params
-    params.require(:item).permit(:name, :description, :unit_price, :merchant_id)
+    if params.has_key?(:item)
+      params.require(:item).permit(:name, :description, :unit_price, :merchant_id)
+    else
+      params.permit(:name, :description, :unit_price, :merchant_id)
+    end
   end
 
 end

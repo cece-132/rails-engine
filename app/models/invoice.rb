@@ -5,7 +5,4 @@ class Invoice < ApplicationRecord
   has_many :invoice_items
   has_many :items, through: :invoice_items, counter_cache: true
 
-  # def self.cleanup
-  #   binding.pry
-  # end
 end
