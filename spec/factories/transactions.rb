@@ -1,4 +1,3 @@
-require 'faker'
 valid_results = ["Success", "Failed"]
 
 FactoryBot.define do
